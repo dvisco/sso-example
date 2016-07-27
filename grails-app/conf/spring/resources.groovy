@@ -4,7 +4,8 @@ import grails.plugin.springsecurity.SecurityFilterPosition
 import org.opensaml.saml2.metadata.provider.HTTPMetadataProvider;
 import org.opensaml.xml.parse.BasicParserPool
 import org.opensaml.common.xml.SAMLConstants
-
+import org.springframework.security.saml.context.SAMLContextProviderImpl
+import org.springframework.security.saml.log.SAMLDefaultLogger
 import org.springframework.security.saml.metadata.MetadataGeneratorFilter;
 import org.springframework.security.saml.metadata.MetadataGenerator;
 import org.springframework.security.saml.metadata.ExtendedMetadata;
@@ -12,7 +13,9 @@ import org.springframework.security.saml.key.JKSKeyManager
 import org.springframework.security.saml.SAMLBootstrap
 import org.springframework.security.saml.metadata.CachingMetadataManager;
 import org.springframework.security.saml.processor.HTTPPostBinding
-
+import org.springframework.security.saml.SAMLEntryPoint
+import org.springframework.security.saml.websso.WebSSOProfileImpl
+import org.springframework.security.saml.websso.WebSSOProfileOptions
 
 
 
@@ -75,4 +78,21 @@ beans = {
 
         bean.constructorArgs = [ref('metadataGenerator')]
     }
+
+    samlEntryPoint(SAMLEntryPoint) {
+        filterProcessesUrl = "/saml/login"
+        defaultProfileOptions = ref('webProfileOptions')
+    }
+
+    webProfileOptions(WebSSOProfileOptions) {
+        includeScoping = false
+        binding = SAMLConstants.SAML2_POST_BINDING_URI
+    }
+
+    webSSOprofile(WebSSOProfileImpl)
+
+    samlLogger(SAMLDefaultLogger)
+
+    contextProvider(SAMLContextProviderImpl)
+
 }

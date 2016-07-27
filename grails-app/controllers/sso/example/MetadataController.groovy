@@ -27,7 +27,7 @@ class MetadataController {
     def keyManager
 
     def index = {
-        [hostedSP: metadata.hostedSPName, spList: metadata.SPEntityNames, idpList: metadata.IDPEntityNames]
+         [hostedSP: metadata.hostedSPName, spList: metadata.SPEntityNames, idpList: metadata.IDPEntityNames]
     }
 
     def show = {
@@ -36,10 +36,6 @@ class MetadataController {
         def storagePath = getFileName(entityDescriptor)
         def serializedMetadata = getMetadataAsString(entityDescriptor)
 
-//         render  [entityDescriptor: entityDescriptor, extendedMetadata: extendedMetadata,
-//         storagePath: storagePath, serializedMetadata: serializedMetadata]
-//        render serializedMetadata as XML
-//        return serializedMetadata
         render(text: serializedMetadata, contentType: "text/xml", encoding: "UTF-8")
     }
 
