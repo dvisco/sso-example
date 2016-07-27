@@ -1,0 +1,14 @@
+import grails.core.*
+import grails.util.*
+import grails.plugins.*
+import org.grails.core.artefact.*
+
+model {
+	def serializedMetadata
+}
+
+json {
+	message serializedMetadata
+    environment Environment.current.name
+
+}

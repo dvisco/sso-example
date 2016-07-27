@@ -3,6 +3,7 @@ import grails.plugin.springsecurity.SecurityFilterPosition
 
 import org.opensaml.saml2.metadata.provider.HTTPMetadataProvider;
 import org.opensaml.xml.parse.BasicParserPool
+import org.opensaml.common.xml.SAMLConstants
 
 import org.springframework.security.saml.metadata.MetadataGeneratorFilter;
 import org.springframework.security.saml.metadata.MetadataGenerator;
@@ -58,12 +59,16 @@ beans = {
         providers = [ref('ssoCircleProvider')]
     }
 
+    // Setup the meta data generator
     metadataGenerator(MetadataGenerator) {
         entityId = "urn:test:dvisco:pittsburghpa"
+        entityBaseURL = "http://localhost:8080"
         extendedMetadata = { ExtendedMetadata data ->
             signMetadata = false
-            idpDiscoveryEnabled = true // Possibly set to false
+            idpDiscoveryEnabled = false // Possibly set to false
         }
+        bindingsSSO = [SAMLConstants.SAML2_POST_BINDING_URI]
+        bindingsSLO = [] // Not supporting logout at this time
     }
 
     metadataGeneratorFilter(MetadataGeneratorFilter) { bean ->
