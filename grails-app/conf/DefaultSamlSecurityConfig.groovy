@@ -5,7 +5,7 @@ security {
 		afterLoginUrl = '/'
 		afterLogoutUrl = '/'
 		userGroupAttribute = "memberOf"
-		responseSkew = 60
+		responseSkew = 600
 		autoCreate {
 			active =  false
 			key = 'username'

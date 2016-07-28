@@ -1,9 +1,11 @@
 import grails.plugin.springsecurity.SpringSecurityUtils
-import grails.plugin.springsecurity.SecurityFilterPosition
+import grails.plugin.springsecurity.web.authentication.AjaxAwareAuthenticationFailureHandler
 
 import org.opensaml.saml2.metadata.provider.HTTPMetadataProvider;
 import org.opensaml.xml.parse.BasicParserPool
 import org.opensaml.common.xml.SAMLConstants
+import org.springframework.security.saml.SAMLAuthenticationProvider
+import org.springframework.security.saml.SAMLProcessingFilter
 import org.springframework.security.saml.context.SAMLContextProviderImpl
 import org.springframework.security.saml.log.SAMLDefaultLogger
 import org.springframework.security.saml.metadata.MetadataGeneratorFilter;
@@ -14,9 +16,11 @@ import org.springframework.security.saml.SAMLBootstrap
 import org.springframework.security.saml.metadata.CachingMetadataManager;
 import org.springframework.security.saml.processor.HTTPPostBinding
 import org.springframework.security.saml.SAMLEntryPoint
+import org.springframework.security.saml.websso.WebSSOProfileConsumerImpl
 import org.springframework.security.saml.websso.WebSSOProfileImpl
 import org.springframework.security.saml.websso.WebSSOProfileOptions
-
+import org.springframework.security.web.DefaultRedirectStrategy
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler
 
 
 beans = {
@@ -29,6 +33,8 @@ beans = {
     if (!conf.saml.active) {
         return
     }
+
+    SpringSecurityUtils.registerProvider 'samlAuthenticationProvider'
 
     def beansFile = "classpath:security/springSecuritySamlBeans.xml"
     println "Importing beans from ${beansFile}..."
@@ -95,4 +101,37 @@ beans = {
 
     contextProvider(SAMLContextProviderImpl)
 
+
+    successRedirectHandler(SavedRequestAwareAuthenticationSuccessHandler) {
+        alwaysUseDefaultTargetUrl = conf.saml.alwaysUseAfterLoginUrl ?: false
+        defaultTargetUrl = "/v1/me"
+    }
+
+    samlWebSSOProcessingFilter(SAMLProcessingFilter) {
+        filterProcessesUrl = "/saml/SSO"
+        authenticationManager = ref('authenticationManager')
+        authenticationSuccessHandler = ref('successRedirectHandler')
+        authenticationFailureHandler = ref('authenticationFailureHandler')
+    }
+
+    authenticationFailureHandler(AjaxAwareAuthenticationFailureHandler) {
+        redirectStrategy = ref('redirectStrategy')
+        defaultFailureUrl = '/login/authfail?login_error=1'
+        useForward = false
+        ajaxAuthenticationFailureUrl = '/login/authfail?ajax=true'
+        exceptionMappings = []
+    }
+
+    redirectStrategy(DefaultRedirectStrategy) {
+        contextRelative = false
+    }
+
+    samlAuthenticationProvider(SAMLAuthenticationProvider) {
+//        userDetails = ref('userDetailsService')
+        hokConsumer = ref('webSSOprofileConsumer')
+    }
+
+    webSSOprofileConsumer(WebSSOProfileConsumerImpl){
+        responseSkew = conf.saml.responseSkew
+    }
 }
