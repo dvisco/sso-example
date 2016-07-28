@@ -11,6 +11,7 @@ security {
 			key = 'username'
 			assignAuthorities = true
 		}
+		forceAuthN = true
 		metadata {
 			defaultIdp = 'ping'
 			url = '/saml/metadata'

@@ -93,6 +93,7 @@ beans = {
     webProfileOptions(WebSSOProfileOptions) {
         includeScoping = false
         binding = SAMLConstants.SAML2_POST_BINDING_URI
+//        forceAuthN = conf.saml.forceAuthN
     }
 
     webSSOprofile(WebSSOProfileImpl)
